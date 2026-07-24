@@ -1,5 +1,4 @@
-import random
-import pprint
+import math
 
 class Agent:
     def __init__(self, 
@@ -7,10 +6,10 @@ class Agent:
                 gender: str,
                 weight: int, 
                 health: int,
-                savings: str,
+                savings: float,
                 risk_tolerance: int,
-                social_support: str,
-                disease: str,
+                social_support: float,
+                disease: float,
                  ):
         self.age = age
         self.gender = gender
@@ -21,10 +20,6 @@ class Agent:
         self.social_support = social_support
         self.disease = disease
 
-"""
-i want to create 10 agents with a set of ranged values
-1 - create a function that gets random values
-2 - run a loop
-but how do i run a set of a agents. i want to set a range for 10 agents so that i can have a range of agent traits rather than being fully random
-
-"""
+    def calculate_threshold(self):
+        threshold = ((self.health/10) + (self.risk_tolerance/10) + self.savings + self.social_support - self.disease)/4 #disease is penalizing hence dividing by 4 to normalize
+        return round(threshold, 2)
