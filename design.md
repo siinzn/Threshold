@@ -65,3 +65,11 @@ A shared event applied identically to the whole population
 - Type - [Gas price increase, Food supply decreases, Food price increases, Global Pandamic(since u asked to startt with one ill start with this), Job loss, Divorce(if married), War]
 - Intensity - scale of 1-10 how bad the shock is, normally its below 5 but sometimes it can be above
 - Duration - Scale 1-10 (1 = 1 week, 10 = 10 week)
+
+Action space — define your 3 actions as constants (e.g. an Enum or just a list of strings) — no logic yet, just naming them in code
+Action effect definitions — for each action, define how it modifies impact (e.g. "seek support" reduces impact if social_support is high, "ignore" doesn't reduce it at all) — this is where action choice actually matters
+State update function — given an agent's current health/mood, the computed impact, and the action's effect, compute new health/mood values (with sensible bounds — health shouldn't go below 0 or above 10)
+Reward function — given old state vs new state (plus action cost), compute the reward number
+Single-agent, single-timestep wiring — chain steps 3–7 together for one agent, one shock, one (currently random) action; print every intermediate value and sanity-check it makes sense
+Multi-timestep loop for one agent — repeat step 8 across, say, 20 timesteps, still random actions, track health/mood/reward over time — does the pattern look plausible (agent trends worse under repeated shocks unless action helps)?
+Scale to full population — wrap step 9 across all ~50 agents, same shock applied simultaneously, each agent independent — verify no state leaks between agents

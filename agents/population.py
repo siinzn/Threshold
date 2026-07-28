@@ -29,6 +29,12 @@ def random_values():
         "War": 10
     }
 
+    available_actions = [
+            "Ignore",
+            "Reduce Consumption",
+            "Seek Support",
+        ]
+
     age_ = random.randint(18,55)
     gender_ = random.choice(["male", "female"]) 
     weight_ = random.randint(50,100)
@@ -39,24 +45,26 @@ def random_values():
     disease_ = random.choice(list(disease_list.values()))
 
     shock = []
-    shock_type = random.choice(list(shock_dict.values()))
-    shock_intensity = random.randint(1,10)
-    shock_duration = random.randint(1,10)
-    shock.extend([shock_type/10, shock_intensity/10, shock_duration/10])
-    return age_,gender_,weight_,health_score_,savings_,risk_tolerance_,social_support_,disease_, shock
+    #shock_type = random.choice(list(shock_dict.values()))
+    shock_intensity = random.random()
+    #shock_duration = random.randint(1,10)
+    shock.extend([shock_intensity])
+
+    action_ = random.choice(available_actions)
+    return age_,gender_,weight_,health_score_,savings_,risk_tolerance_,social_support_,disease_, shock, action_
 
 def create_population(agent_count: int):
     population = []  
     for i in range(agent_count):
-        age_,gender_,weight_,health_score_,savings_,risk_tolerance_,social_support_,disease_,shock_ = random_values()
-        agent = Agent(age=age_, gender=gender_, weight=weight_, health=health_score_,savings=savings_,risk_tolerance=risk_tolerance_,social_support=social_support_,disease=disease_, shock=shock_)
+        age_,gender_,weight_,health_score_,savings_,risk_tolerance_,social_support_,disease_,shock_,action_ = random_values()
+        agent = Agent(age=age_, gender=gender_, weight=weight_, health=health_score_,savings=savings_,risk_tolerance=risk_tolerance_,social_support=social_support_,disease=disease_, shock=shock_, available_actions=action_)
         population.append(agent)
-        print(f"Agent : {i} Added to population")
-        pprint.pprint(vars(population[i]), sort_dicts=False)
-
-        print(f"\nThreshold : {agent.calculate_threshold()}")
-        shock = agent.calculate_impact()
-        print(f"Shock: {shock}")
+        print(f"Agent : {i} Added to population\n")
+        print(f"Threshold : {agent.calculate_threshold()}")
+        impact_ = agent.calculate_impact()
+        print(f"Impact: {impact_}")
+        reduced_impact = agent.apply_action(agent.available_actions, impact=impact_)
+        print(f"Reduced Impact : {reduced_impact}\n")
     return population
 
 create_population(4)
