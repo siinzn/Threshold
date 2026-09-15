@@ -1,3 +1,4 @@
+from agents.constants import action_cost
 
 class Agent:
     def __init__(self, 
@@ -10,7 +11,7 @@ class Agent:
                 social_support: float,
                 disease: float,
                 shock: list,
-                available_actions: str
+                mood: int
                  ):
         self.age = age
         self.gender = gender
@@ -21,7 +22,12 @@ class Agent:
         self.social_support = social_support
         self.disease = disease
         self.shock = shock
-        self.available_actions = available_actions
+        self.available_actions = [
+                    "Ignore",
+                    "Reduce Consumption",
+                    "Seek Support",
+                ]
+        self.mood = mood
 
     def calculate_threshold(self):
         threshold = ((self.health/10) + (self.risk_tolerance/10) + self.savings + self.social_support - self.disease)/4 #disease is penalizing hence dividing by 4 to normalize
@@ -46,7 +52,6 @@ class Agent:
     straight. 
     """
     def apply_action(self, action, impact):
-        impact = self.calculate_impact()
         if action == "Ignore":
             print(f"Agent action : Ignore impact")
             return impact #my idea was if impact is small ignore it
@@ -63,5 +68,22 @@ class Agent:
         elif action == "Seek Support":
             print(f"Agent action : Seek Support")
             if impact != 0:
-                impact -= 0.07 #i just decided a random number so yeah
+                if self.social_support >= 0.7:
+                    print(f"insane support: {self.social_support}")
+                    impact -= 0.07
+                else:
+                    impact -= 0.02 #i just decided a random number so yeah
             return round(impact,2)
+
+    def update_state(self, reduced_impact):
+        self.health -= reduced_impact * 10
+        self.health = max(0, min(10, self.health))
+
+        self.mood -= reduced_impact * 10
+        self.mood = max(0, min(10, self.mood))
+
+    def agent_reward(self, old_health, health, old_mood, mood, action):
+        action_cost_ = action_cost[action]
+        reward = (health - old_health) + (mood - old_mood) - action_cost_
+        return reward
+        

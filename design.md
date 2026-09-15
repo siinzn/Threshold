@@ -65,3 +65,10 @@ A shared event applied identically to the whole population
 - Type - [Gas price increase, Food supply decreases, Food price increases, Global Pandamic(since u asked to startt with one ill start with this), Job loss, Divorce(if married), War]
 - Intensity - scale of 1-10 how bad the shock is, normally its below 5 but sometimes it can be above
 - Duration - Scale 1-10 (1 = 1 week, 10 = 10 week)
+
+**whats left until q learning**
+
+- Add action costs to agent_reward (a small dict, e.g. {"Ignore": 0, "Reduce Consumption": 0.05, "Seek Support": 0.1}, subtracted in the reward calc)
+- Multi-timestep loop for one agent — right now everything happens once per agent (one shock, one action, done). Wrap this in a loop so one agent experiences repeated shocks over many timesteps, and track reward/health/mood across time
+- Confirm the numbers behave sensibly over time — does an agent with poor traits trend worse across repeated shocks unless it keeps "getting lucky" with a good random action?
+- Scale to the full ~50-agent population — same shock, applied simultaneously, each agent's state fully independent (no shared mutation bugs)
