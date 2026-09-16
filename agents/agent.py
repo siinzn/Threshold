@@ -1,7 +1,8 @@
-from agents.constants import action_cost
+from agents.constants import ACTION_COST
 
 class Agent:
     def __init__(self, 
+                id: int,
                 age: int, 
                 gender: str,
                 weight: int, 
@@ -13,6 +14,7 @@ class Agent:
                 shock: list,
                 mood: int
                  ):
+        self.id = id
         self.age = age
         self.gender = gender
         self.weight = weight
@@ -22,11 +24,6 @@ class Agent:
         self.social_support = social_support
         self.disease = disease
         self.shock = shock
-        self.available_actions = [
-                    "Ignore",
-                    "Reduce Consumption",
-                    "Seek Support",
-                ]
         self.mood = mood
 
     def calculate_threshold(self):
@@ -53,12 +50,12 @@ class Agent:
     """
     def apply_action(self, action, impact):
         if action == "Ignore":
-            print(f"Agent action : Ignore impact")
+            #print(f"Agent action : Ignore impact")
             return impact #my idea was if impact is small ignore it
 
         #this actually depends on salary so for now ill just keep it for savings
         elif action == "Reduce Consumption":
-            print(f"Agent action : Reduce Consumption")
+            #print(f"Agent action : Reduce Consumption")
             #im just gonna randomly guess a number to reduce from the impact since we havent set a metric for it
             if impact != 0:
                 impact -= 0.05
@@ -66,10 +63,10 @@ class Agent:
 
         #if an agent has good social support then he can get help from them to reduce impact
         elif action == "Seek Support":
-            print(f"Agent action : Seek Support")
+            #print(f"Agent action : Seek Support")
             if impact != 0:
                 if self.social_support >= 0.7:
-                    print(f"insane support: {self.social_support}")
+                    #print(f"insane support: {self.social_support}")
                     impact -= 0.07
                 else:
                     impact -= 0.02 #i just decided a random number so yeah
@@ -82,8 +79,17 @@ class Agent:
         self.mood -= reduced_impact * 10
         self.mood = max(0, min(10, self.mood))
 
+        # this is after the agent gets hit by a shock and how it recovers
+        # i dont need to have and if statement to keep the health and mood under 10 because max and min already handles that
+        if self.risk_tolerance <= 5:
+            self.health += 0.2
+            self.mood += 0.2
+        else:
+            self.health += 0.5
+            self.mood += 0.5
+
     def agent_reward(self, old_health, health, old_mood, mood, action):
-        action_cost_ = action_cost[action]
+        action_cost_ = ACTION_COST[action]
         reward = (health - old_health) + (mood - old_mood) - action_cost_
         return reward
         
