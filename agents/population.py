@@ -1,6 +1,7 @@
 from .agent import Agent
 import random
-from agents.constants import CHOISE_DICT, DISEASE_DICT, AVAILABLE_ACTIONS, CYCLE_LENGTH, POPULATION
+import numpy as np
+from agents.constants import CHOISE_DICT, DISEASE_DICT, AVAILABLE_ACTIONS, CYCLE_LENGTH, POPULATION, LEARNING_RATE, GAMMA
 
 def random_values():
     age_ = random.randint(18,55)
@@ -21,14 +22,25 @@ def random_values():
     mood_ = random.randint(1,10)
     return age_,gender_,weight_,health_score_,savings_,risk_tolerance_,social_support_,disease_, shock, mood_
 
+def get_state(agent):
+    b_health = min(agent.health // 2, 4)
+    b_mood = min(agent.mood // 2, 4)    
+    return int(b_health * 5 + b_mood)
+
 def run_agent_step(agent, shock):
     agent.shock = shock
 
     #print(f"Threshold : {agent.calculate_threshold()}")
     impact_ = agent.calculate_impact()
 
-    #print(f"Impact: {impact_}")
-    action_= random.choice(AVAILABLE_ACTIONS)
+    state_id = get_state(agent=agent)
+    random_float = random.random()
+
+    if random_float < agent.epsilon:
+        action_= random.choice(AVAILABLE_ACTIONS)
+    else:
+        max_idx = np.where(agent.qtable[state_id] == max(agent.qtable[state_id]))[0]
+        action_ = AVAILABLE_ACTIONS[random.choice(max_idx)]
 
     reduced_impact_ = agent.apply_action(action=action_, impact=impact_)
     #print(f"Reduced Impact : {reduced_impact_}")
@@ -38,6 +50,9 @@ def run_agent_step(agent, shock):
 
     agent.update_state(reduced_impact=reduced_impact_)
 
+    next_state_id = get_state(agent=agent)
+    action_index = AVAILABLE_ACTIONS.index(action_)
+
     reward_ = agent.agent_reward(
         old_health=old_health_, 
         health=agent.health,
@@ -45,8 +60,11 @@ def run_agent_step(agent, shock):
         mood=agent.mood,
         action=action_
         )
-    
+
+    agent.update_qtable(state_id,action_index,reward_, next_state_id, GAMMA, LEARNING_RATE)
+
     #print(f"Reward: {round(reward_,2)}")
+    #print(agent.qtable)
     return round(reward_,2), action_
 
 """

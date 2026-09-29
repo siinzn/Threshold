@@ -1,4 +1,5 @@
 from agents.constants import ACTION_COST
+import numpy as np
 
 class Agent:
     def __init__(self, 
@@ -25,6 +26,10 @@ class Agent:
         self.disease = disease
         self.shock = shock
         self.mood = mood
+        self.state_size = 25
+        self.action_size = 3
+        self.epsilon = 1.0
+        self.qtable = np.zeros((self.state_size, self.action_size))
 
     def calculate_threshold(self):
         threshold = ((self.health/10) + (self.risk_tolerance/10) + self.savings + self.social_support - self.disease)/4 #disease is penalizing hence dividing by 4 to normalize
@@ -82,14 +87,18 @@ class Agent:
         # this is after the agent gets hit by a shock and how it recovers
         # i dont need to have and if statement to keep the health and mood under 10 because max and min already handles that
         if self.risk_tolerance <= 5:
-            self.health += 0.2
-            self.mood += 0.2
+            self.health += 0.4
+            self.mood += 0.4
         else:
-            self.health += 0.5
-            self.mood += 0.5
+            self.health += 1
+            self.mood += 1
 
     def agent_reward(self, old_health, health, old_mood, mood, action):
         action_cost_ = ACTION_COST[action]
         reward = (health - old_health) + (mood - old_mood) - action_cost_
         return reward
-        
+
+    def update_qtable(self, state_id, action_index, reward,next_state_id, gamma, learning_rate):
+        delta = reward + gamma * max(self.qtable[next_state_id]) - self.qtable[state_id, action_index]
+        self.qtable[state_id, action_index] += learning_rate * delta
+         
