@@ -3,3 +3,6 @@ venv/
 design.md
 
 __pycache__/
+
+.frontend/
+frontend/

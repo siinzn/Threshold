@@ -1,7 +1,7 @@
 from .agent import Agent
 import random
 import numpy as np
-from agents.constants import CHOISE_DICT, DISEASE_DICT, AVAILABLE_ACTIONS, CYCLE_LENGTH, POPULATION, LEARNING_RATE, GAMMA
+from agents.constants import CHOISE_DICT, DISEASE_DICT, AVAILABLE_ACTIONS, CYCLE_LENGTH, POPULATION, LEARNING_RATE, GAMMA, EPSILON_DECAY, EPSILON_MIN
 
 def random_values():
     age_ = random.randint(18,55)
@@ -48,7 +48,7 @@ def run_agent_step(agent, shock):
     old_health_ = agent.health
     old_mood_ = agent.mood
 
-    agent.update_state(reduced_impact=reduced_impact_)
+    agent.update_state(reduced_impact=reduced_impact_, action=action_)
 
     next_state_id = get_state(agent=agent)
     action_index = AVAILABLE_ACTIONS.index(action_)
@@ -62,7 +62,7 @@ def run_agent_step(agent, shock):
         )
 
     agent.update_qtable(state_id,action_index,reward_, next_state_id, GAMMA, LEARNING_RATE)
-
+    agent.epsilon = max(agent.epsilon * EPSILON_DECAY, EPSILON_MIN)
     #print(f"Reward: {round(reward_,2)}")
     #print(agent.qtable)
     return round(reward_,2), action_

@@ -63,7 +63,7 @@ class Agent:
             #print(f"Agent action : Reduce Consumption")
             #im just gonna randomly guess a number to reduce from the impact since we havent set a metric for it
             if impact != 0:
-                impact -= 0.05
+                impact -= 0.01
             return round(impact,2)
 
         #if an agent has good social support then he can get help from them to reduce impact
@@ -77,21 +77,34 @@ class Agent:
                     impact -= 0.02 #i just decided a random number so yeah
             return round(impact,2)
 
-    def update_state(self, reduced_impact):
-        self.health -= reduced_impact * 10
-        self.health = max(0, min(10, self.health))
+    def update_state(self, reduced_impact, action):
+        if action == "Seek Support": # seeking support helps with mood while it wont matter for health
+            self.mood -= reduced_impact * 7 
+            self.health -= reduced_impact * 10
+        elif action == "Reduce Consumption": # reducing doesnt helps with mood while it helps for health
+            self.mood -= reduced_impact * 10
+            self.health -= reduced_impact * 7
+        else:
+            self.mood -= reduced_impact * 10
+            self.health -= reduced_impact * 10
 
-        self.mood -= reduced_impact * 10
         self.mood = max(0, min(10, self.mood))
-
+        self.health = max(0, min(10, self.health))
+        
         # this is after the agent gets hit by a shock and how it recovers
         # i dont need to have and if statement to keep the health and mood under 10 because max and min already handles that
         if self.risk_tolerance <= 5:
             self.health += 0.4
-            self.mood += 0.4
+            if action == "Seek Support":
+                self.mood += 0.6
+            else:
+                self.mood += 0.4
         else:
             self.health += 1
             self.mood += 1
+
+        self.mood = max(0, min(10, self.mood))
+        self.health = max(0, min(10, self.health))
 
     def agent_reward(self, old_health, health, old_mood, mood, action):
         action_cost_ = ACTION_COST[action]
